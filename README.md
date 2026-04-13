@@ -31,9 +31,9 @@ All configuration is done via **CPEE Data Objects** — nothing is hardcoded in 
 
 | Name | Example Value | Description |
 |------|--------------|-------------|
-| `rooms` | `5602.EG.001,5620.01.101,5611.01.018` | Comma-separated list of room IDs to display on the overview page. Add or remove rooms here. |
-| `chair` | `Chair of Information Systems` | Chair name displayed in the header of both pages. Change this to match your chair. |
-| `comments` | `Practical course rooms for i17` | Subtitle displayed under the chair name. Use this for course name or any description. |
+| `rooms` | `5602.EG.001,5620.01.101,5611.01.018` | Comma-separated list of room IDs to display on the overview page. **Add or remove rooms here.** |
+| `chair` | `Chair of Information Systems` | Chair name displayed in the header of both pages. **Change this to match your chair.** |
+| `comments` | `Practical course rooms for i17` | Subtitle displayed under the chair name. **Use this for course name or any description.** |
 | `send_url` | `https://lehre.bpm.in.tum.de/~ge59tah/qr/send.php` | URL of the PHP callback relay on your server. |
 
 ### How to Configure
