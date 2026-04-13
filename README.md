@@ -23,6 +23,28 @@ Each CPEE node has two data-handling sections:
 
 ---
 
+## Configuration
+
+All configuration is done via **CPEE Data Objects** — nothing is hardcoded in the HTML files. This means you can fully customize the system without touching any code.
+
+### Customizable Data Objects
+
+| Name | Example Value | Description |
+|------|--------------|-------------|
+| `rooms` | `5602.EG.001,5620.01.101,5611.01.018` | Comma-separated list of room IDs to display on the overview page. Add or remove rooms here. |
+| `chair` | `i17` | Chair name displayed in the header of both pages. Change this to match your chair. |
+| `comments` | `Practical course rooms for i17` | Subtitle displayed under the chair name. Use this for course name or any description. |
+| `send_url` | `https://lehre.bpm.in.tum.de/~ge59tah/qr/send.php` | URL of the PHP callback relay on your server. |
+
+### How to Configure
+
+1. Open your CPEE instance
+2. Go to **Data Objects** tab
+3. Set the values for `rooms`, `chair`, `comments`, and `send_url`
+4. Start the workflow — the pages will automatically use your configured values
+
+No code changes are needed. The HTML pages read all values from CPEE Page Parameters which are populated from the Data Objects.
+
 ### CPEE Workflow Structure
 
 <img width="533" height="679" alt="Bildschirmfoto 2026-04-13 um 22 51 35" src="https://github.com/user-attachments/assets/f89fabcb-cb0f-42b7-b517-e7d95a96c8f7" />
