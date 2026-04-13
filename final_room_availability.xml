@@ -1,0 +1,401 @@
+<testset xmlns="http://cpee.org/ns/properties/2.0">
+  <executionhandler>ruby</executionhandler>
+  <dataelements>
+    <selected_room/>
+    <timeout>1776025608</timeout>
+    <availability/>
+    <go_back/>
+    <rooms>["5602.EG.001","5620.01.101","5611.01.018","5613.01.010"]</rooms>
+    <chair>Chair of Information Systems</chair>
+    <comments>Practical course rooms for i17</comments>
+    <send_url>https://lehre.bpm.in.tum.de/~ge59tah/qr/send.php</send_url>
+  </dataelements>
+  <endpoints>
+    <frames_timeout>https://cpee.org/services/powernap.php</frames_timeout>
+    <subprocess>https-post://cpee.org/flow/start/url/</subprocess>
+    <init>https-post://cpee.org/out/frames/</init>
+    <display>https-put://cpee.org/out/frames/</display>
+  </endpoints>
+  <attributes>
+    <guarded>none</guarded>
+    <modeltype>CPEE</modeltype>
+    <theme>extended</theme>
+    <guarded_id/>
+    <info>final_room_availability</info>
+    <creator>Christine Ashcreek</creator>
+    <author>Christine Ashcreek</author>
+    <model_uuid>27f38226-c93b-4ba1-91c6-26eaa97acb2a</model_uuid>
+    <model_version/>
+    <design_dir>Teaching.dir/Prak.dir/TUM-Prak-25-WS.dir/ChenHuikun.dir</design_dir>
+    <design_stage>development</design_stage>
+    <frames_id>room_availability</frames_id>
+  </attributes>
+  <description>
+    <description xmlns="http://cpee.org/ns/description/1.0">
+      <call id="a1" endpoint="init">
+        <parameters>
+          <label>Init</label>
+          <color/>
+          <arguments>
+            <style_url>https://cpee.org/form/frames.css</style_url>
+            <document_url/>
+            <x_amount>10</x_amount>
+            <y_amount>10</y_amount>
+            <lang>de-at</lang>
+            <document_name>rooms</document_name>
+          </arguments>
+        </parameters>
+        <code>
+          <signal>false</signal>
+          <prepare>endpoints.init += attributes.frames_id
+data.timeout = Time.now.to_i</prepare>
+          <finalize output="result"/>
+          <update output="result"/>
+          <rescue output="result"/>
+        </code>
+        <annotations>
+          <_generic/>
+          <_logging_behavior>
+            <_exclude>false</_exclude>
+            <_include>false</_include>
+          </_logging_behavior>
+          <_timing>
+            <_timing_weight/>
+            <_timing_avg/>
+            <explanations/>
+          </_timing>
+          <_shifting>
+            <_shifting_type>Duration</_shifting_type>
+          </_shifting>
+          <_context_data_analysis>
+            <probes/>
+            <ips/>
+          </_context_data_analysis>
+          <report>
+            <url/>
+          </report>
+          <_notes>
+            <_notes_general/>
+          </_notes>
+        </annotations>
+        <documentation>
+          <input/>
+          <output/>
+          <implementation>
+            <description/>
+          </implementation>
+          <code>
+            <description/>
+          </code>
+        </documentation>
+      </call>
+      <call id="a2" endpoint="display">
+        <parameters>
+          <label>Clear</label>
+          <color/>
+          <arguments>
+            <type>set</type>
+            <lx>0</lx>
+            <ly>0</ly>
+            <x_amount>12</x_amount>
+            <y_amount>12</y_amount>
+            <button/>
+            <style/>
+            <urls/>
+            <default/>
+          </arguments>
+        </parameters>
+        <code>
+          <signal>false</signal>
+          <prepare>endpoints.display += attributes.frames_id</prepare>
+          <finalize output="result"/>
+          <update output="result"/>
+          <rescue output="result"/>
+        </code>
+        <annotations>
+          <_generic/>
+          <_logging_behavior>
+            <_exclude>false</_exclude>
+            <_include>false</_include>
+          </_logging_behavior>
+          <_timing>
+            <_timing_weight/>
+            <_timing_avg/>
+            <explanations/>
+          </_timing>
+          <_shifting>
+            <_shifting_type>Duration</_shifting_type>
+          </_shifting>
+          <_context_data_analysis>
+            <probes/>
+            <ips/>
+          </_context_data_analysis>
+          <report>
+            <url/>
+          </report>
+          <_notes>
+            <_notes_general/>
+          </_notes>
+        </annotations>
+        <documentation>
+          <input/>
+          <output/>
+          <implementation>
+            <description/>
+          </implementation>
+          <code>
+            <description/>
+          </code>
+        </documentation>
+      </call>
+      <parallel eid="e2" wait="1" cancel="last">
+        <parallel_branch>
+          <loop eid="e3" mode="pre_test" condition="true">
+            <call id="a3" endpoint="display">
+              <parameters>
+                <label>Show Overview</label>
+                <color/>
+                <arguments>
+                  <type>wait</type>
+                  <lx>0</lx>
+                  <ly>0</ly>
+                  <x_amount>12</x_amount>
+                  <y_amount>12</y_amount>
+                  <button/>
+                  <style/>
+                  <urls>
+                    <urls_item>
+                      <lang>de-at</lang>
+                      <url>https://lehre.bpm.in.tum.de/~ge59tah/room_overview.html</url>
+                    </urls_item>
+                  </urls>
+                  <default>
+                    <rooms>!data.rooms</rooms>
+                    <chair>!data.chair</chair>
+                    <course>!data.comments</course>
+                    <send_url>!data.send_url</send_url>
+                  </default>
+                </arguments>
+              </parameters>
+              <code>
+                <signal>false</signal>
+                <prepare>endpoints.display += attributes.frames_id</prepare>
+                <finalize output="result">data.selected_room = result['selected_room'] || nil
+data.availability  = result['availability']  || 'unknown'</finalize>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_logging_behavior>
+                  <_exclude>false</_exclude>
+                  <_include>false</_include>
+                </_logging_behavior>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <manipulate id="a10" label="Set Timeout to Current Time">
+              <code>data.timeout = Time.now.to_i</code>
+              <annotations>
+                <_logging_behavior>
+                  <_exclude>false</_exclude>
+                </_logging_behavior>
+                <_context_data_analysis>
+                  <probes/>
+                </_context_data_analysis>
+              </annotations>
+            </manipulate>
+            <call id="a4" endpoint="display">
+              <parameters>
+                <label>Show Details</label>
+                <color/>
+                <arguments>
+                  <type>wait</type>
+                  <lx>0</lx>
+                  <ly>0</ly>
+                  <x_amount>12</x_amount>
+                  <y_amount>12</y_amount>
+                  <button/>
+                  <style/>
+                  <urls>
+                    <urls_item>
+                      <lang>de-at</lang>
+                      <url>https://lehre.bpm.in.tum.de/~ge59tah/room_details.html</url>
+                    </urls_item>
+                  </urls>
+                  <default>
+                    <room>!data.selected_room</room>
+                    <chair>!data.chair</chair>
+                    <course>!data.comments</course>
+                    <send_url>!data.send_url</send_url>
+                  </default>
+                </arguments>
+              </parameters>
+              <code>
+                <signal>false</signal>
+                <prepare>endpoints.display += attributes.frames_id</prepare>
+                <finalize output="result">data.go_back = result['go_back'] || false</finalize>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_logging_behavior>
+                  <_exclude>false</_exclude>
+                  <_include>false</_include>
+                </_logging_behavior>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <manipulate id="a9" label="Set Timeout to Current Time">
+              <code>data.timeout = Time.now.to_i</code>
+              <annotations>
+                <_logging_behavior>
+                  <_exclude>false</_exclude>
+                </_logging_behavior>
+                <_context_data_analysis>
+                  <probes/>
+                </_context_data_analysis>
+              </annotations>
+            </manipulate>
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+            <_annotations>
+              <_logging_behavior>
+                <_iteration>false</_iteration>
+              </_logging_behavior>
+            </_annotations>
+          </loop>
+        </parallel_branch>
+        <parallel_branch>
+          <loop eid="e4" mode="post_test" condition="Time.now.to_i - data.timeout &lt; 120 ">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+            <_annotations>
+              <_logging_behavior>
+                <_iteration>false</_iteration>
+              </_logging_behavior>
+            </_annotations>
+            <call id="a7" endpoint="frames_timeout">
+              <parameters>
+                <label>Wait 2 minutes</label>
+                <color/>
+                <method>:post</method>
+                <arguments>
+                  <timeout>120</timeout>
+                </arguments>
+              </parameters>
+              <code>
+                <signal>false</signal>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_logging_behavior>
+                  <_exclude>false</_exclude>
+                  <_include>false</_include>
+                </_logging_behavior>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+          </loop>
+        </parallel_branch>
+      </parallel>
+    </description>
+  </description>
+  <transformation>
+    <description type="copy"/>
+    <dataelements type="none"/>
+    <endpoints type="none"/>
+  </transformation>
+</testset>
