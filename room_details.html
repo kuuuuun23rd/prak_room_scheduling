@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TUM Room Status</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --blue: #0065BD;
+      --blue-dark: #003f7a;
+      --blue-light: #e8f1fb;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+    .header {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .header-left { display: flex; align-items: center; gap: 20px; z-index: 1; }
+    .tum-logo-wrap { background: #fff; padding: 10px 18px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); flex-shrink: 0; }
+    .tum-logo-wrap img { height: 38px; display: block; }
+    .header-title h1 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .header-title p { font-size: 0.8rem; color: rgba(255,255,255,0.65); margin-top: 3px; }
+    .header-clock { z-index: 1; font-family: 'DM Mono', monospace; font-size: 0.85rem; color: rgba(255,255,255,0.8); text-align: right; }
+
+    .status-hero { padding: 28px 32px 0; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .room-identity h2 { font-family: 'DM Sans', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    .room-identity .room-id { font-family: 'DM Mono', monospace; font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+
+    .status-pill { display: flex; align-items: center; gap: 10px; padding: 12px 24px; border-radius: 50px; font-size: 1rem; font-weight: 600; flex-shrink: 0; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .status-free { background: var(--green-light); color: var(--green); }
+    .status-free .status-dot { background: var(--green); animation: pulse-green 1.5s infinite; }
+    .status-occupied { background: var(--red-light); color: var(--red); }
+    .status-occupied .status-dot { background: var(--red); animation: pulse-red 1.5s infinite; }
+    .status-soon { background: var(--amber-light); color: var(--amber); }
+    .status-soon .status-dot { background: var(--amber); }
+    .status-loading { background: var(--blue-light); color: var(--blue); }
+    .status-loading .status-dot { background: var(--blue); }
+
+    @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(5,150,105,0.4)}50%{box-shadow:0 0 0 6px rgba(5,150,105,0)}}
+    @keyframes pulse-red   { 0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.4)}50%{box-shadow:0 0 0 6px rgba(220,38,38,0)}}
+
+    .main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px 32px 32px; }
+    .card { background: #fff; border-radius: 16px; border: 1.5px solid var(--border); padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+    .card-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-full { grid-column: 1 / -1; }
+
+    .info-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon { width: 34px; height: 34px; border-radius: 8px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+    .info-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
+    .info-value { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+
+    .no-events { text-align: center; padding: 32px; color: var(--muted); font-size: 0.9rem; }
+    .loading-row { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.85rem; padding: 16px 0; }
+    .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .current-event-banner { background: linear-gradient(135deg, var(--red-light), #fff); border: 1.5px solid #fca5a5; border-radius: 12px; padding: 16px 20px; margin: 0 32px; display: flex; align-items: center; gap: 14px; animation: fadeUp 0.4s ease; }
+    .current-event-banner.free { background: linear-gradient(135deg, var(--green-light), #fff); border-color: #6ee7b7; }
+    .ceb-icon { font-size: 1.5rem; }
+    .ceb-text strong { display: block; font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .ceb-text span { font-size: 0.8rem; color: var(--muted); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .go-back-banner { display: flex; align-items: center; gap: 20px; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 24px; margin: 16px 32px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .go-back-text strong { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .go-back-text span { font-size: 0.78rem; color: var(--muted); }
+    .go-back-qr canvas, .go-back-qr img { border-radius: 6px; border: 1px solid var(--border); }
+
+    .week-calendar { overflow-x: auto; }
+    .week-grid { display: grid; grid-template-columns: 52px repeat(5, 1fr); border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; min-width: 500px; font-size: 0.78rem; }
+    .wg-header { background: var(--blue-light); padding: 8px 6px; text-align: center; font-weight: 700; color: var(--blue-dark); border-bottom: 1.5px solid var(--border); border-right: 1px solid var(--border); font-size: 0.72rem; }
+    .wg-header:last-child { border-right: none; }
+    .wg-header.today-col { background: var(--blue); color: #fff; }
+    .wg-time-cell { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); padding: 0 6px; text-align: right; border-right: 1.5px solid var(--border); border-bottom: 1px solid #f1f5f9; height: 36px; display: flex; align-items: flex-start; padding-top: 3px; }
+    .wg-day-cell { border-right: 1px solid var(--border); border-bottom: 1px solid #f1f5f9; height: 36px; position: relative; }
+    .wg-day-cell:last-child { border-right: none; }
+    .wg-day-cell.today-col { background: #fafcff; }
+    .wg-event { position: absolute; left: 2px; right: 2px; background: var(--blue); color: #fff; border-radius: 4px; padding: 3px 5px; font-size: 0.65rem; font-weight: 600; overflow: visible; z-index: 1; cursor: default; box-shadow: 0 1px 4px rgba(0,101,189,0.2); line-height: 1.4; white-space: normal; word-break: break-word; }
+    .wg-event.current { background: var(--blue); }
+    .wg-event.past { background: #94a3b8; }
+
+    .missing-config { display: flex; align-items: center; justify-content: center; height: 60vh; flex-direction: column; gap: 12px; color: var(--muted); }
+    .missing-config h2 { color: var(--red); font-size: 1.2rem; }
+    .missing-config code { background: var(--border); padding: 4px 8px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 0.85rem; }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="tum-logo-wrap">
+        <img src="https://cpee.org/form/tum.svg" alt="TUM">
+      </div>
+      <div class="header-title">
+        <h1 id="header-title">TUM Room Status</h1>
+        <p id="header-subtitle">Room Availability</p>
+      </div>
+    </div>
+    <div class="header-clock" id="clock"></div>
+  </div>
+
+  <div class="status-hero">
+    <div class="room-identity">
+      <h2 id="room-name">—</h2>
+      <div class="room-id" id="room-id-line">—</div>
+    </div>
+    <div class="status-pill status-loading" id="status-pill">
+      <span class="status-dot"></span>
+      <span id="status-text">Loading…</span>
+    </div>
+  </div>
+
+  <div id="event-banner" style="margin-top: 16px; display: none;"></div>
+
+  <div class="go-back-banner" id="go-back-banner" style="display:none;">
+    <div class="go-back-qr" id="qr-go-back"></div>
+    <div class="go-back-text">
+      <strong>📱 Scan to go back to overview</strong>
+      <span>Scan this QR code to return to the room list</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <div class="card-title">🏢 Room Information</div>
+      <div class="info-row">
+        <div class="info-icon">📍</div>
+        <div>
+          <div class="info-label">Address</div>
+          <div class="info-value" id="info-address">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🏷️</div>
+        <div>
+          <div class="info-label">Type</div>
+          <div class="info-value" id="info-type">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 Today's Events</div>
+      <div id="next-event-card">
+        <div class="loading-row"><div class="spinner"></div>Fetching schedule…</div>
+      </div>
+    </div>
+
+    <div class="card card-full">
+      <div class="card-title">🗓 This Week's Schedule</div>
+      <div class="week-calendar">
+        <div id="week-calendar-grid">
+          <div class="loading-row"><div class="spinner"></div>Loading this week's events…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const p        = new URLSearchParams(window.location.search);
+    const SEND_URL = p.get('send_url');
+    const ROOM_ID  = p.get('room');
+    const ROOM_NAME    = p.get('name')    || ROOM_ID || 'Room';
+    const ROOM_ADDRESS = p.get('address') || '—';
+    const ROOM_TYPE    = p.get('type')    || '—';
+    const CHAIR        = p.get('chair');
+    const COURSE       = p.get('course');
+    const CPEE_CB      = window.name || p.get('cb') || null;
+
+    if (!ROOM_ID) {
+      document.querySelector('.main').innerHTML = `
+        <div class="missing-config" style="grid-column:1/-1">
+          <h2>Missing Configuration</h2>
+          <p>No room ID provided.</p>
+        </div>`;
+      document.getElementById('status-text').textContent = 'Not configured';
+    }
+
+    document.getElementById('header-title').textContent    = CHAIR;
+    document.getElementById('header-subtitle').textContent = COURSE;
+    document.getElementById('room-name').textContent       = ROOM_NAME;
+    document.getElementById('room-id-line').textContent    = ROOM_ID || '—';
+    document.getElementById('info-address').textContent    = ROOM_ADDRESS;
+    document.getElementById('info-type').textContent       = ROOM_TYPE;
+    document.title = ROOM_NAME + ' · TUM Room Status';
+
+    // Clock
+    function updateClock() {
+      document.getElementById('clock').textContent =
+        new Date().toLocaleString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    const fmt = d => new Date(d).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+    function courseNum(raw) {
+      if (!raw) return 'Event';
+      if (raw.course_id) return raw.course_id;
+      if (raw.module_id) return raw.module_id;
+      const titleStr = raw.title_de || raw.title_en || raw.title || '';
+      const bracket = titleStr.match(/\[([^\]]+)\]/);
+      if (bracket) return bracket[1].trim();
+      const codes = titleStr.match(/\b[A-Z]{2,4}\d{4,5}\b/g);
+      if (codes && codes.length) return [...new Set(codes)].join(', ');
+      return titleStr;
+    }
+
+    async function loadCalendar() {
+      if (!ROOM_ID) return;
+      try {
+        const _ref = new Date();
+        const _dow = _ref.getDay();
+        const _mon = new Date(_ref);
+        _mon.setDate(_ref.getDate() - (_dow === 0 ? 6 : _dow - 1));
+        _mon.setHours(0, 0, 0, 0);
+        const _fri = new Date(_mon);
+        _fri.setDate(_mon.getDate() + 4);
+        _fri.setHours(23, 59, 59, 0);
+        const pad = n => String(n).padStart(2, '0');
+        const fmtISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}+01:00`;
+
+        const res = await fetch('https://nav.tum.de/api/calendar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: [ROOM_ID], start_after: fmtISO(_mon), end_before: fmtISO(_fri) })
+        });
+        if (!res.ok) throw new Error('Calendar fetch failed');
+        const data = await res.json();
+
+        // fetch room address and type
+        const detailRes  = await fetch(`https://nav.tum.de/api/locations/${ROOM_ID}`);
+        const detailData = await detailRes.json();
+        if (detailData.name) document.getElementById('room-name').textContent = detailData.name;
+        if (detailData.type_common_name) document.getElementById('info-type').textContent = detailData.type_common_name;
+        if (detailData.props && detailData.props.computed) {
+          const addressEntry = detailData.props.computed.find(c => c.name === 'Adresse');
+          if (addressEntry) document.getElementById('info-address').textContent = addressEntry.text;
+        }
+
+        const events = (data[ROOM_ID] && data[ROOM_ID].events) || [];
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+        const week = events
+          .map(e => ({
+            start:   new Date(e.start_at || e.startAt || e.start),
+            end:     new Date(e.end_at   || e.endAt   || e.end),
+            title:   e.title_de || e.title_en || e.title || 'Event',
+            dateStr: (e.start_at || e.startAt || e.start || '').split('T')[0],
+            raw: e
+          }))
+          .sort((a, b) => a.start - b.start);
+
+        const todayEvents = week.filter(e => e.dateStr === todayStr);
+        const current = todayEvents.find(e => e.start <= now && e.end >= now);
+        const next    = todayEvents.find(e => e.start > now);
+
+        // Build go-back QR with availability
+        if (CPEE_CB && SEND_URL) {
+          document.getElementById('go-back-banner').style.display = 'flex';
+          document.getElementById('qr-go-back').innerHTML = '';
+          new QRCode(document.getElementById('qr-go-back'), {
+            text: `${SEND_URL}?cb=${encodeURIComponent(CPEE_CB)}&go_back=true&availability=${current ? 'not_free' : 'free'}`,
+            width: 100,
+            height: 100,
+            colorDark: '#003f7a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.L
+          });
+        }
+
+        // Status pill
+        const pill = document.getElementById('status-pill');
+        const txt  = document.getElementById('status-text');
+        if (current) { pill.className = 'status-pill status-occupied'; txt.textContent = 'In Use'; }
+        else if (next && (next.start - now) < 30 * 60000) { pill.className = 'status-pill status-soon'; txt.textContent = 'Starting Soon'; }
+        else { pill.className = 'status-pill status-free'; txt.textContent = 'Free Now'; }
+
+        // Banner
+        const banner = document.getElementById('event-banner');
+        banner.style.display = 'block';
+        if (current) {
+          banner.innerHTML = `<div class="current-event-banner"><span class="ceb-icon">🔴</span><div class="ceb-text"><strong>${current.title}</strong><span>In progress · ends at ${fmt(current.end)}</span></div></div>`;
+        } else if (next) {
+          banner.innerHTML = `<div class="current-event-banner free"><span class="ceb-icon">✅</span><div class="ceb-text"><strong>Room is currently free</strong><span>Next event at ${fmt(next.start)}</span></div></div>`;
+        } else {
+          banner.innerHTML = `<div class="current-event-banner free"><span class="ceb-icon">✅</span><div class="ceb-text"><strong>Room is currently free</strong><span>No more events today</span></div></div>`;
+        }
+
+        // Today's events card
+        const nec = document.getElementById('next-event-card');
+        if (next) {
+          nec.innerHTML = `
+            <div style="margin-bottom:10px;">
+              <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">Starting at</div>
+              <div style="font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:var(--blue);">${fmt(next.start)}</div>
+            </div>
+            <div style="font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:6px;">${next.title}</div>
+            <div style="font-size:0.78rem;color:var(--muted);">Ends at ${fmt(next.end)}</div>`;
+        } else {
+          nec.innerHTML = `<div class="no-events">No more events today 🎉</div>`;
+        }
+
+        // Weekly calendar grid
+        const grid = document.getElementById('week-calendar-grid');
+        if (week.length === 0) { grid.innerHTML = `<div class="no-events">No events scheduled this week</div>`; return; }
+
+        const DAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr'];
+        const START_HOUR = 8, END_HOUR = 20, ROW_H = 36;
+
+        const monday = new Date(now);
+        const dow = monday.getDay();
+        monday.setDate(monday.getDate() - (dow === 0 ? 6 : dow - 1));
+        monday.setHours(0, 0, 0, 0);
+
+        const days = DAYS.map((label, i) => {
+          const d = new Date(monday);
+          d.setDate(d.getDate() + i);
+          return { label, date: d, dateStr: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` };
+        });
+
+        let html = `<div class="week-grid"><div class="wg-header"></div>`;
+        days.forEach(d => {
+          const cls = d.dateStr === todayStr ? 'wg-header today-col' : 'wg-header';
+          html += `<div class="${cls}">${d.label}<br>${d.date.getDate()}.${d.date.getMonth()+1}.</div>`;
+        });
+
+        for (let h = START_HOUR; h < END_HOUR; h++) {
+          html += `<div class="wg-time-cell">${String(h).padStart(2,'0')}:00</div>`;
+          days.forEach(d => {
+            const cls = d.dateStr === todayStr ? 'wg-day-cell today-col' : 'wg-day-cell';
+            const slotEvents = week.filter(e => e.dateStr === d.dateStr && e.start.getHours() === h);
+            let cellContent = '';
+            slotEvents.forEach(e => {
+              const duration = (e.end - e.start) / 3600000;
+              const heightPx = Math.max(duration * ROW_H, ROW_H) - 4;
+              const evCls = (e.start <= now && e.end >= now) ? 'wg-event current' : (e.end < now) ? 'wg-event past' : 'wg-event';
+              cellContent += `<div class="${evCls}" style="height:${heightPx}px;">${fmt(e.start)} ${e.title}</div>`;
+            });
+            html += `<div class="${cls}" style="height:${ROW_H}px;">${cellContent}</div>`;
+          });
+        }
+
+        html += `</div>`;
+        grid.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('status-pill').className = 'status-pill status-loading';
+        document.getElementById('status-text').textContent = 'Unavailable';
+        document.getElementById('week-calendar-grid').innerHTML = `<div class="no-events">Could not load schedule — check console</div>`;
+      }
+    }
+
+    loadCalendar();
+    setInterval(loadCalendar, 60000);
+  </script>
+
+</body>
+</html>
+

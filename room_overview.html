@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TUM Room Overview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --blue: #0065BD;
+      --blue-dark: #003f7a;
+      --blue-light: #e8f1fb;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; min-height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+    .header {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .header-left { display: flex; align-items: center; gap: 20px; z-index: 1; }
+    .tum-logo-wrap { background: #fff; padding: 10px 18px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); flex-shrink: 0; }
+    .tum-logo-wrap img { height: 38px; display: block; }
+    .header-title h1 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .header-title p { font-size: 0.8rem; color: rgba(255,255,255,0.65); margin-top: 3px; }
+    .header-clock { z-index: 1; font-family: 'DM Mono', monospace; font-size: 0.85rem; color: rgba(255,255,255,0.8); text-align: right; }
+
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 20px;
+      padding: 24px 32px;
+    }
+
+    .room-card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1.5px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .room-card-header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .room-card-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); word-break: break-word; overflow-wrap: anywhere; line-height: 1.35; }
+    .room-card-id { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+
+    .status-badge { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .badge-free     { background: var(--green-light); color: var(--green); }
+    .badge-free .status-dot { background: var(--green); animation: pulse-green 1.5s infinite; }
+    .badge-occupied { background: var(--red-light); color: var(--red); }
+    .badge-occupied .status-dot { background: var(--red); animation: pulse-red 1.5s infinite; }
+    .badge-soon     { background: var(--amber-light); color: var(--amber); }
+    .badge-soon .status-dot { background: var(--amber); }
+    .badge-loading  { background: var(--blue-light); color: var(--blue); }
+    .badge-loading .status-dot { background: var(--blue); }
+
+    @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(5,150,105,0.4)}50%{box-shadow:0 0 0 5px rgba(5,150,105,0)}}
+    @keyframes pulse-red   { 0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.4)}50%{box-shadow:0 0 0 5px rgba(220,38,38,0)}}
+
+    .room-card-body { display: flex; flex: 1; }
+
+    .room-schedule { flex: 1; padding: 14px 18px; border-right: 1px solid var(--border); min-width: 0; }
+    .schedule-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .schedule-empty { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+
+    .event-row { display: flex; flex-direction: column; gap: 2px;  padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+    .event-row:last-child { border-bottom: none; }
+    .event-time { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--blue); font-weight: 500; }
+    .event-title { font-size: 0.78rem; font-weight: 500; color: var(--text); line-height: 1.45; word-break: break-word; overflow-wrap: anywhere; }
+    .event-row.current .event-time { color: var(--red); }
+    .event-row.current .event-title { color: var(--red); font-weight: 600; }
+
+    .room-qr { padding: 14px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
+    .room-qr canvas, .room-qr img { border-radius: 6px; border: 1px solid var(--border); }
+    .qr-label { font-size: 0.65rem; color: var(--muted); text-align: center; max-width: 90px; line-height: 1.3; }
+
+    .loading-placeholder { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; }
+    .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .missing-config { display: flex; align-items: center; justify-content: center; height: 60vh; flex-direction: column; gap: 12px; color: var(--muted); grid-column: 1/-1; }
+    .missing-config h2 { color: var(--red); }
+    .missing-config code { background: var(--border); padding: 4px 8px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 0.85rem; }
+
+    .scan-hint {
+      text-align: center;
+      padding: 16px 32px 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .scan-hint span { background: var(--blue-light); color: var(--blue); padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="tum-logo-wrap">
+        <img src="https://cpee.org/form/tum.svg" alt="TUM">
+      </div>
+      <div class="header-title">
+        <h1 id="header-title">TUM Room Overview</h1>
+        <p id="header-subtitle">Room Availability</p>
+      </div>
+    </div>
+    <div class="header-clock" id="clock"></div>
+  </div>
+
+  <div class="scan-hint">
+    <span>📱 Scan a QR code</span> to see the full room details on the display
+  </div>
+
+  <div class="rooms-grid" id="rooms-grid">
+    <div class="loading-placeholder" style="grid-column:1/-1; padding: 40px;">
+      <div class="spinner"></div> Loading rooms…
+    </div>
+  </div>
+
+  <script>
+    // Config from URL params (set by CPEE page parameters)
+    // .html?rooms=5613.01.034,5611.01.018,5613.01.010&chair=i17
+    const p          = new URLSearchParams(window.location.search); //grab everything after the ? in the URL
+    const ROOM_IDS   = (p.get('rooms') || '').split(',').map(s => s.trim()).filter(Boolean);
+    const SEND_URL   = p.get('send_url') || 'https://lehre.bpm.in.tum.de/~ge59tah/qr/send_json.php';
+    const CHAIR      = p.get('chair')  || 'TUM';
+    const COURSE     = p.get('course') || 'Room Status Board';
+    const CPEE_CB    = window.name || p.get('cb') || null;
+
+    document.getElementById('header-title').textContent    = CHAIR;
+    document.getElementById('header-subtitle').textContent = COURSE;
+    document.title = CHAIR + ' · Room Overview';
+
+    // Clock
+    function updateClock() {
+      document.getElementById('clock').textContent =
+        new Date().toLocaleString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    const fmt = d => new Date(d).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+    function courseLabel(raw) {
+      if (!raw) return 'Event';
+      if (raw.course_id) return raw.course_id;
+      if (raw.module_id) return raw.module_id;
+      const t = raw.title_de || raw.title_en || raw.title || '';
+      const bracket = t.match(/\[([^\]]+)\]/);
+      if (bracket) return bracket[1].trim();
+      const codes = t.match(/\b[A-Z]{2,4}\d{4,5}\b/g);
+      if (codes && codes.length) return [...new Set(codes)].join(', ');
+      return t;
+    }
+
+    // Build QR code that sends selected_room back to CPEE
+    function buildQR(container, roomId, isFree) {
+      if (!CPEE_CB) {
+        container.innerHTML = `<div style="font-size:0.65rem;color:var(--muted);text-align:center;width:90px;">No CB</div>`;
+        return;
+      }
+      const info = encodeURIComponent(JSON.stringify({ selected_room: roomId }));
+      const cb   = encodeURIComponent(CPEE_CB);
+      const url = `${SEND_URL}?cb=${cb}&selected_room=${encodeURIComponent(roomId)}&availability=${isFree ? 'free' : 'not_free'}`;
+      new QRCode(container, {
+        text: url,
+        width: 90,
+        height: 90,
+        colorDark: '#003f7a',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    }
+
+    // Fetch today's caledar events for all rooms from NavigaTUM API
+    async function fetchAllRooms() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2,'0'); //formatting 9:5 to 09:05
+      const fmtISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}+01:00`; //e.g. 2024-06-23T14:30:00+01:00
+      const todayStart = new Date(now); todayStart.setHours(0,0,0,0);
+      const todayEnd   = new Date(now); todayEnd.setHours(23,59,59,0);
+
+      //send POST request with room IDs and time range, get back calendar data
+      const res = await fetch('https://nav.tum.de/api/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: ROOM_IDS, start_after: fmtISO(todayStart), end_before: fmtISO(todayEnd) })
+      });
+      if (!res.ok) throw new Error('Calendar fetch failed');
+      return await res.json();
+    }
+
+    // Render all room cards
+    function renderCards(calData) {
+      const now = new Date();
+      const grid = document.getElementById('rooms-grid');
+      grid.innerHTML = '';
+
+      if (!ROOM_IDS.length) {
+        grid.innerHTML = `<div class="missing-config"><h2>No rooms configured</h2><p>Pass room IDs via CPEE Page Parameter:</p><code>rooms=5613.01.034,5620.01.101</code></div>`;
+        return;
+      }
+
+      ROOM_IDS.forEach(roomId => {
+        const roomData = calData[roomId];
+        const events = roomData ? roomData.events || [] : [];
+
+        const allEvents = events
+          .map(e => ({
+            start: new Date(e.start_at || e.startAt || e.start),
+            end:   new Date(e.end_at   || e.endAt   || e.end),
+            raw:   e
+          }))
+          .sort((a, b) => a.start - b.start);
+
+        //find current and upcoming events
+        const current  = allEvents.find(e => e.start <= now && e.end >= now);
+        const upcoming = allEvents.filter(e => e.start > now);
+        //const displayEvents = current
+        //? [current, ...upcoming.slice(0, 2)]
+        //: upcoming.slice(0, 3);
+	const displayEvents = allEvents.slice(0,4);
+
+        // Status badge
+        let badgeClass = 'badge-free', badgeText = 'Free Now';
+        if (current) { badgeClass = 'badge-occupied'; badgeText = 'In Use'; }
+        else if (upcoming.length && (upcoming[0].start - now) < 30 * 60000) { badgeClass = 'badge-soon'; badgeText = 'Starting Soon'; }
+
+        const roomName = (roomData && roomData.name) ? roomData.name : roomId;
+        const safeId   = roomId.replace(/\./g, '_');
+
+        const card = document.createElement('div');
+        card.className = 'room-card';
+        card.innerHTML = `
+          <div class="room-card-header">
+            <div>
+              <div class="room-card-title">${roomName}</div>
+              <div class="room-card-id">${roomId}</div>
+            </div>
+            <div class="status-badge ${badgeClass}">
+              <span class="status-dot"></span>${badgeText}
+            </div>
+          </div>
+          <div class="room-card-body">
+            <div class="room-schedule">
+              <div class="schedule-label">Today's Schedule</div>
+              <div id="schedule-${safeId}"></div>
+            </div>
+            <div class="room-qr">
+              <div id="qr-${safeId}"></div>
+              <div class="qr-label">Scan to show details on display</div>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+
+        // Schedule rows
+        const scheduleEl = document.getElementById(`schedule-${safeId}`);
+        if (displayEvents.length === 0) {
+          scheduleEl.innerHTML = `<div class="schedule-empty">No events today</div>`;
+        } else {
+          displayEvents.forEach(e => {
+            const isCurrent = e.start <= now && e.end >= now;
+            const row = document.createElement('div');
+            row.className = `event-row${isCurrent ? ' current' : ''}`;
+            row.innerHTML = `
+              <div class="event-time">${fmt(e.start)} – ${fmt(e.end)}</div>
+              <div class="event-title">${courseLabel(e.raw)}</div>`;
+            scheduleEl.appendChild(row);
+          });
+        }
+
+        // QR code → sends selected_room to CPEE
+        buildQR(document.getElementById(`qr-${safeId}`), roomId, !current);
+      });
+    }
+
+    //Init
+    async function init() {
+      if (!ROOM_IDS.length) {
+        document.getElementById('rooms-grid').innerHTML =
+          `<div class="missing-config"><h2>No rooms configured</h2><p>Pass room IDs via CPEE Page Parameter:</p><code>rooms=5613.01.034,5620.01.101</code></div>`;
+        return;
+      }
+      try {
+        const data = await fetchAllRooms();
+        renderCards(data);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('rooms-grid').innerHTML =
+          `<div class="missing-config"><h2>Could not load room data</h2><p>${err.message}</p></div>`;
+      }
+    }
+
+    init();
+    setInterval(init, 60000);
+  </script>
+
+</body>
+</html>
+
+
