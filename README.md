@@ -25,18 +25,8 @@ Each CPEE node has two data-handling sections:
 
 ### CPEE Workflow Structure
 
-```
-a1 Init Frame
-a2 Clear
-Parallel (+)
-├── Loop (true)
-│     ├── a3 Show Overview       ← waits for room QR scan
-│     ├── a9 Set Timeout
-│     ├── a4 Show Details        ← waits for go-back QR scan
-│     └── a10 Set Timeout
-└── Loop (Time.now.to_i - data.timeout < 120)
-      └── a7 Wait 2 minutes
-```
+<img width="533" height="679" alt="Bildschirmfoto 2026-04-13 um 22 51 35" src="https://github.com/user-attachments/assets/f89fabcb-cb0f-42b7-b517-e7d95a96c8f7" />
+
 
 ---
 
