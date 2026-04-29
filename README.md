@@ -6,7 +6,7 @@ A CPEE-driven web application that displays real-time room availability and sche
 
 ## System Overview
 
-The system consists of two main display pages and a PHP backend. A CPEE workflow controls the process — showing the overview page, waiting for a QR scan, then showing the detail page for the selected room.
+The system consists of two main display pages and a PHP backend. A CPEE workflow controls the process — showing the overview page, waiting for a QR scan, then showing the detail page for the selected room under https://cpee.org/out/frames/room_availability/.
 
 ## Demo
 
