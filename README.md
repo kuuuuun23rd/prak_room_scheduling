@@ -11,19 +11,19 @@ The system consists of two main display pages and a PHP backend. A CPEE workflow
 ## Demo
 
 **1. Show overview**
-<img width="1919" height="946" alt="1" src="https://github.com/user-attachments/assets/c95c4f00-0702-46d3-885f-3271ed4a71ca" />
+<img width="1896" height="965" alt="Bildschirmfoto 2026-04-29 um 13 12 53" src="https://github.com/user-attachments/assets/ed10988b-d872-4496-bde1-d23ddac0e660" />
 
-**2. Scan room "2907.06.605"**
-<img width="1876" height="952" alt="2" src="https://github.com/user-attachments/assets/53dc0e5f-94a9-4103-b977-962c6fc1c1b1" />
+
+**2. Scan room "5611.01.018"**
+<img width="1906" height="954" alt="Bildschirmfoto 2026-04-29 um 13 13 31" src="https://github.com/user-attachments/assets/b84e3a27-2b5a-43c2-b412-3d0887f39905" />
+
 
 **3. Scan the QR to go back to overview**
-<img width="1893" height="943" alt="3" src="https://github.com/user-attachments/assets/1dda7b31-2c4d-47dc-acec-1fc2aeb25d6a" />
+<img width="1892" height="950" alt="Bildschirmfoto 2026-04-29 um 13 14 09" src="https://github.com/user-attachments/assets/cc726108-8c19-43ac-8c8f-c840f84ad701" />
 
-**4. Scan another room "8120.EG.001"**
-<img width="1894" height="955" alt="4" src="https://github.com/user-attachments/assets/2207a0c5-d480-4fce-ac50-ea66c077ff63" />
 
-**Note:** The NavigaTUM calendar data is currently frozen at 18.10.2025, so the courses shown reflect that date. Screenshots and demo videos will be updated once the NavigaTUM calendar is refreshed with current course data.
-<img width="466" height="80" alt="Bildschirmfoto 2026-04-14 um 20 25 52" src="https://github.com/user-attachments/assets/7e58a693-dada-4ef1-8ca8-7718b3f71084" />
+**4. Scan another room "5602.EG.001"**
+<img width="1893" height="949" alt="Bildschirmfoto 2026-04-29 um 13 14 40" src="https://github.com/user-attachments/assets/14b821e0-3ff8-4244-9890-dce17a7131fd" />
 
 
 
