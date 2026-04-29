@@ -14,16 +14,20 @@ The system consists of two main display pages and a PHP backend. A CPEE workflow
 <img width="1896" height="965" alt="Bildschirmfoto 2026-04-29 um 13 12 53" src="https://github.com/user-attachments/assets/ed10988b-d872-4496-bde1-d23ddac0e660" />
 
 
+
 **2. Scan room "5611.01.018"**
 <img width="1906" height="954" alt="Bildschirmfoto 2026-04-29 um 13 13 31" src="https://github.com/user-attachments/assets/b84e3a27-2b5a-43c2-b412-3d0887f39905" />
+
 
 
 **3. Scan the QR to go back to overview**
 <img width="1892" height="950" alt="Bildschirmfoto 2026-04-29 um 13 14 09" src="https://github.com/user-attachments/assets/cc726108-8c19-43ac-8c8f-c840f84ad701" />
 
 
+
 **4. Scan another room "5602.EG.001"**
 <img width="1893" height="949" alt="Bildschirmfoto 2026-04-29 um 13 14 40" src="https://github.com/user-attachments/assets/14b821e0-3ff8-4244-9890-dce17a7131fd" />
+
 
 
 
